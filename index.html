@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>CS 상담원 인력 산정 계산기</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧮</text></svg>">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -595,11 +596,11 @@
 ## 계산 결과
 - 런칭 초반 (1~2개월)
   - 예상 월간 티켓: ${Math.round(earlyTickets).toLocaleString()}건
-  - 필요 인원: ${totalEarlyAgents}명
+  - 필요 인원: ${totalEarlyAgents}MM
 
 - 안정기 (3개월 후~)
   - 예상 월간 티켓: ${Math.round(stableTickets).toLocaleString()}건
-  - 필요 인원: ${totalStableAgents}명
+  - 필요 인원: ${totalStableAgents}MM
 
 ## 언어별 배분
 ${langBreakdown}
@@ -612,11 +613,13 @@ ${langBreakdown}
 
 ---
 
-아래 항목들을 분석해주세요:
-1. **인력 배치 전략**: 런칭 초반과 안정기의 인력 운영 방안
+아래 항목들을 MM(Man-Month) 기준으로 분석해주세요:
+1. **MM 배분 전략**: 런칭 초반과 안정기의 MM 운영 방안
 2. **리스크 분석**: 현재 계산에서 고려해야 할 리스크 요소
-3. **비용 최적화**: 인력 효율화를 위한 제안
+3. **MM 효율화**: 인력 효율화를 위한 제안 (MM 관점)
 4. **언어별 운영 팁**: 언어 특성에 따른 운영 조언
+
+주의: 정규직, 계약직, 파트타임 등 고용 형태에 대한 제안은 하지 마세요. 순수하게 MM 기준으로만 분석해주세요.
 
 간결하고 실무에 바로 적용할 수 있게 작성해주세요. 한국어로 답변해주세요.`;
 
