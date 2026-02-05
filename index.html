@@ -83,6 +83,7 @@
     .lang-agents-value.blue { color: #60a5fa; }
     .lang-agents-unit { font-size: 10px; color: #666; margin-left: 2px; }
     .lang-arrow { color: #555; font-size: 12px; width: 12px; }
+    .lang-vendor { width: 100px; text-align: center; font-size: 12px; color: #f59e0b; }
     .btn-remove { width: 28px; height: 28px; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 6px; color: #ef4444; cursor: pointer; font-size: 14px; }
     .lang-empty { text-align: center; padding: 40px; color: #666; }
     .ai-section { padding: 24px; margin-top: 20px; }
@@ -301,6 +302,7 @@
         <span style="width: 60px; text-align: center; color: #34d399;">초반</span>
         <span style="width: 12px;"></span>
         <span style="width: 60px; text-align: center; color: #60a5fa;">안정기</span>
+        <span style="width: 100px; text-align: center; color: #f59e0b;">외주사</span>
         <span style="width: 28px;"></span>
       </div>
 
@@ -387,6 +389,24 @@
       { code: 'ms', name: '말레이시아어', flag: '🇲🇾' },
       { code: 'it', name: '이탈리아어', flag: '🇮🇹' },
     ];
+
+    // 외주사별 담당 언어
+    const VENDOR_DATA = {
+      'Meta-M': ['ko'],
+      'Ubase': ['en', 'id', 'th', 'ms', 'zh-TW', 'tr', 'ar'],
+      'Keywords': ['en', 'hi', 'ja', 'fr', 'ru', 'es-MX', 'pt-BR', 'de'],
+    };
+
+    // 언어 코드로 외주사 찾기
+    function getVendors(langCode) {
+      const vendors = [];
+      for (const [vendor, langs] of Object.entries(VENDOR_DATA)) {
+        if (langs.includes(langCode)) {
+          vendors.push(vendor);
+        }
+      }
+      return vendors.length > 0 ? vendors.join(', ') : '-';
+    }
 
     // 현재 언어 목록
     let languages = [
@@ -566,6 +586,7 @@
             <span class="lang-agents-value blue">${Math.ceil(lang.stableAgents || 0)}</span>
             <span class="lang-agents-unit">명</span>
           </div>
+          <div class="lang-vendor">${getVendors(lang.code)}</div>
           <button class="btn-remove" data-code="${lang.code}">×</button>
         </div>
       `).join('');
@@ -637,7 +658,8 @@
       const langBreakdown = languages.map(lang => {
         const earlyAgents = (earlyTickets / ticketsPerMonth) * (lang.percentage / 100);
         const stableAgents = (stableTickets / ticketsPerMonth) * (lang.percentage / 100);
-        return `- ${lang.name}: 유저 비중 ${lang.percentage}%, 초반 ${Math.ceil(earlyAgents)}명 → 안정기 ${Math.ceil(stableAgents)}명`;
+        const vendor = getVendors(lang.code);
+        return `- ${lang.name}: 유저 비중 ${lang.percentage}%, 초반 ${Math.ceil(earlyAgents)}MM → 안정기 ${Math.ceil(stableAgents)}MM, 외주사: ${vendor}`;
       }).join('\n');
 
       const prompt = `당신은 게임 CS(고객지원) 운영 전문가입니다. 아래 CS 인력 산정 결과를 분석해주세요.
@@ -655,8 +677,13 @@
   - 예상 월간 티켓: ${Math.round(stableTickets).toLocaleString()}건
   - 필요 인원: ${totalStableAgents}MM
 
-## 언어별 배분
+## 언어별 배분 및 외주사
 ${langBreakdown}
+
+## 외주사 정보
+- Meta-M: 한국어 전문
+- Ubase: 영어, 인도네시아어, 태국어, 말레이시아어, 중국어 번체, 튀르키예어, 아랍어
+- Keywords: 영어, 힌디어, 일본어, 프랑스어, 러시아어, 스페인어, 포르투갈어, 독일어
 
 ## 계산 기준
 - 런칭 초반 티켓 발생률: ${(config.ticketRateEarly * 100).toFixed(2)}%
@@ -670,7 +697,8 @@ ${langBreakdown}
 1. **MM 배분 전략**: 런칭 초반과 안정기의 MM 운영 방안
 2. **리스크 분석**: 현재 계산에서 고려해야 할 리스크 요소
 3. **MM 효율화**: 인력 효율화를 위한 제안 (MM 관점)
-4. **언어별 운영 팁**: 언어 특성에 따른 운영 조언
+4. **언어별 운영 팁**: 언어 특성과 담당 외주사를 고려한 운영 조언
+5. **외주사 활용 전략**: 각 외주사별 강점을 고려한 배분 제안
 
 주의: 정규직, 계약직, 파트타임 등 고용 형태에 대한 제안은 하지 마세요. 순수하게 MM 기준으로만 분석해주세요.
 
