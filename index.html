@@ -32,6 +32,8 @@
     .input-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
     .input-group label { font-size: 12px; color: #a1a1aa; display: block; margin-bottom: 6px; }
     .input-group input { width: 100%; padding: 12px 16px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: #fff; font-size: 15px; }
+    .input-select { width: 100%; padding: 12px 16px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: #fff; font-size: 15px; cursor: pointer; }
+    .input-select option { background: #1a2332; color: #fff; }
     .btn-row { display: flex; gap: 12px; margin-top: 20px; }
     .btn-secondary { padding: 8px 16px; background: transparent; border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; color: #a1a1aa; font-size: 13px; }
     .results-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
@@ -70,6 +72,8 @@
     .lang-total.valid { color: #34d399; }
     .lang-total.invalid { color: #f97316; }
     .btn-primary { padding: 8px 16px; background: linear-gradient(135deg, #2563eb, #3b82f6); border: none; border-radius: 8px; color: #fff; font-size: 13px; font-weight: 500; }
+    .btn-suggest { padding: 8px 16px; background: rgba(34, 197, 94, 0.15); border: 1px solid rgba(34, 197, 94, 0.3); border-radius: 8px; color: #4ade80; font-size: 13px; font-weight: 500; }
+    .btn-suggest:hover { background: rgba(34, 197, 94, 0.25); }
     .lang-col-header { display: flex; align-items: center; gap: 16px; padding: 8px 16px; margin-bottom: 8px; font-size: 11px; color: #a1a1aa; }
     .lang-row { display: flex; align-items: center; gap: 16px; padding: 12px 16px; background: rgba(255,255,255,0.02); border-radius: 10px; margin-bottom: 12px; }
     .lang-flag { font-size: 24px; width: 36px; line-height: 1; display: flex; align-items: center; position: relative; top: -2px; }
@@ -84,6 +88,7 @@
     .lang-agents-unit { font-size: 10px; color: #9ca3af; margin-left: 2px; }
     .lang-arrow { color: #9ca3af; font-size: 12px; width: 12px; }
     .lang-vendor { width: 100px; text-align: center; font-size: 12px; color: #f59e0b; }
+    .lang-vendor-agents { width: 80px; text-align: center; font-size: 12px; color: #fbbf24; }
     .btn-remove { width: 28px; height: 28px; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 6px; color: #ef4444; cursor: pointer; font-size: 14px; }
     .lang-empty { text-align: center; padding: 40px; color: #9ca3af; }
     .ai-section { padding: 24px; margin-top: 20px; }
@@ -145,7 +150,7 @@
 
     <!-- Main Input Card -->
     <div class="card glow" style="padding: 24px; margin-bottom: 20px;">
-      <div class="input-grid">
+      <div class="input-grid" style="grid-template-columns: 1fr 1fr 1fr;">
         <div class="input-group">
           <label>게임명</label>
           <input type="text" id="gameName" value="팰월드 모바일">
@@ -153,6 +158,14 @@
         <div class="input-group">
           <label>예상 MAU</label>
           <input type="text" id="mau" value="1,000,000" inputmode="numeric">
+        </div>
+        <div class="input-group">
+          <label>기준 게임</label>
+          <select id="baseGame" class="input-select">
+            <option value="newstate">NEW STATE</option>
+            <option value="defensederby">Defense Derby</option>
+            <option value="aod">AOD</option>
+          </select>
         </div>
       </div>
 
@@ -207,11 +220,11 @@
         <div class="settings-grid">
           <div class="settings-item">
             <label>런칭 초반 티켓 발생률 (%)</label>
-            <input type="number" step="0.01" id="ticketRateEarly" value="0.14">
+            <input type="number" step="0.01" id="ticketRateEarly" value="1.17">
           </div>
           <div class="settings-item">
             <label>안정기 티켓 발생률 (%)</label>
-            <input type="number" step="0.01" id="ticketRateStable" value="0.07">
+            <input type="number" step="0.01" id="ticketRateStable" value="0.43">
           </div>
           <div class="settings-item">
             <label>상담원 1인 일 처리량 (건)</label>
@@ -287,7 +300,8 @@
       <div class="lang-header">
         <h2>🌍 언어별 상담원 배분</h2>
         <div class="lang-header-right">
-          <span class="lang-total valid" id="langTotal">합계: 75%</span>
+          <span class="lang-total valid" id="langTotal">합계: 0%</span>
+          <button class="btn btn-suggest" id="suggestBtn">🔄 비중 제안</button>
           <button class="btn btn-primary" id="addLangBtn">+ 언어 추가</button>
         </div>
       </div>
@@ -303,12 +317,13 @@
         <span style="width: 12px;"></span>
         <span style="width: 60px; text-align: center; color: #60a5fa;">안정기</span>
         <span style="width: 100px; text-align: center; color: #f59e0b;">외주사</span>
+        <span style="width: 80px; text-align: center; color: #f59e0b;">외주사 인원</span>
         <span style="width: 28px;"></span>
       </div>
 
       <div id="languageList"></div>
 
-      <div class="lang-empty hidden" id="langEmpty">언어를 추가해주세요</div>
+      <div class="lang-empty hidden" id="langEmpty">출시 지역을 선택해주세요</div>
     </div>
 
     <!-- AI Analysis Section -->
@@ -354,40 +369,38 @@
 
     <!-- Footer -->
     <div class="footer">
-      <div class="footer-sub">계산 기준: Defense Derby, Abyss of Dungeons 실제 운영 데이터 기반</div>
+      <div class="footer-sub">계산 기준: NEW STATE, Defense Derby, Abyss of Dungeons 실제 운영 데이터 기반</div>
       <div class="footer-credit">Made by JEEYEA CHA</div>
     </div>
   </div>
 
   <script>
+    // 게임별 티켓 발생률 데이터
+    const GAME_DATA = {
+      newstate: { name: 'NEW STATE', earlyRate: 0.0117, stableRate: 0.0043 },
+      defensederby: { name: 'Defense Derby', earlyRate: 0.0014, stableRate: 0.0007 },
+      aod: { name: 'AOD', earlyRate: 0.0018, stableRate: 0.0018 },
+    };
+
     // 설정
     const config = {
-      ticketRateEarly: 0.0014,
-      ticketRateStable: 0.0007,
+      ticketRateEarly: 0.0117,
+      ticketRateStable: 0.0043,
       ticketsPerAgentPerDay: 100,
       workingDaysPerMonth: 22
     };
 
-    // 프리셋 언어
+    // 프리셋 언어 (NEW STATE + Defense Derby + AOD 평균 비중, 2개 이상 게임 데이터 있는 언어만)
     const PRESET_LANGUAGES = [
-      { code: 'ko', name: '한국어', flag: '🇰🇷' },
-      { code: 'en', name: '영어', flag: '🇺🇸' },
-      { code: 'ja', name: '일본어', flag: '🇯🇵' },
-      { code: 'zh-CN', name: '중국어 간체', flag: '🇨🇳' },
-      { code: 'zh-TW', name: '중국어 번체', flag: '🇹🇼' },
-      { code: 'th', name: '태국어', flag: '🇹🇭' },
-      { code: 'id', name: '인도네시아어', flag: '🇮🇩' },
-      { code: 'vi', name: '베트남어', flag: '🇻🇳' },
-      { code: 'pt-BR', name: '포르투갈어 (브라질)', flag: '🇧🇷' },
-      { code: 'es-MX', name: '스페인어 (남미)', flag: '🇲🇽' },
-      { code: 'ar', name: '아랍어', flag: '🇸🇦' },
-      { code: 'hi', name: '힌디어', flag: '🇮🇳' },
-      { code: 'tr', name: '튀르키예어', flag: '🇹🇷' },
-      { code: 'ru', name: '러시아어', flag: '🇷🇺' },
-      { code: 'de', name: '독일어', flag: '🇩🇪' },
-      { code: 'fr', name: '프랑스어', flag: '🇫🇷' },
-      { code: 'ms', name: '말레이시아어', flag: '🇲🇾' },
-      { code: 'it', name: '이탈리아어', flag: '🇮🇹' },
+      { code: 'en', name: '영어', flag: '🇺🇸', baseRatio: 24.3 },
+      { code: 'hi', name: '힌디어', flag: '🇮🇳', baseRatio: 23.0 },
+      { code: 'id', name: '인도네시아어', flag: '🇮🇩', baseRatio: 13.0 },
+      { code: 'ko', name: '한국어', flag: '🇰🇷', baseRatio: 12.6 },
+      { code: 'pt-BR', name: '포르투갈어 (브라질)', flag: '🇧🇷', baseRatio: 12.6 },
+      { code: 'zh-TW', name: '중국어 번체', flag: '🇹🇼', baseRatio: 5.3 },
+      { code: 'th', name: '태국어', flag: '🇹🇭', baseRatio: 4.2 },
+      { code: 'ja', name: '일본어', flag: '🇯🇵', baseRatio: 3.1 },
+      { code: 'es-MX', name: '스페인어 (남미)', flag: '🇲🇽', baseRatio: 2.8 },
     ];
 
     // 외주사별 담당 언어
@@ -408,12 +421,32 @@
       return vendors.length > 0 ? vendors.join(', ') : '-';
     }
 
+    // 언어 추가/삭제 시 비중 자동 재계산
+    function recalculatePercentages() {
+      if (languages.length === 0) return;
+      
+      // 선택된 언어들의 기본 비중 합계
+      const totalBaseRatio = languages.reduce((sum, lang) => {
+        const preset = PRESET_LANGUAGES.find(p => p.code === lang.code);
+        return sum + (preset ? preset.baseRatio : 10); // 커스텀 언어는 10으로
+      }, 0);
+      
+      // 100%로 재계산
+      languages.forEach(lang => {
+        const preset = PRESET_LANGUAGES.find(p => p.code === lang.code);
+        const baseRatio = preset ? preset.baseRatio : 10;
+        lang.percentage = Math.round((baseRatio / totalBaseRatio) * 100 * 10) / 10;
+      });
+      
+      // 반올림 오차 보정
+      const currentTotal = languages.reduce((sum, l) => sum + l.percentage, 0);
+      if (currentTotal !== 100 && languages.length > 0) {
+        languages[0].percentage += Math.round((100 - currentTotal) * 10) / 10;
+      }
+    }
+
     // 현재 언어 목록
-    let languages = [
-      { code: 'ko', name: '한국어', flag: '🇰🇷', percentage: 30 },
-      { code: 'en', name: '영어', flag: '🇺🇸', percentage: 25 },
-      { code: 'ja', name: '일본어', flag: '🇯🇵', percentage: 20 },
-    ];
+    let languages = [];
 
     // DOM 요소
     const elements = {
@@ -444,6 +477,7 @@
       aiLoading: document.getElementById('aiLoading'),
       aiResult: document.getElementById('aiResult'),
       analyzeBtn: document.getElementById('analyzeBtn'),
+      baseGame: document.getElementById('baseGame'),
     };
 
     // 숫자 포맷팅 함수 (쉼표 추가)
@@ -587,6 +621,7 @@
             <span class="lang-agents-unit">명</span>
           </div>
           <div class="lang-vendor">${getVendors(lang.code)}</div>
+          <div class="lang-vendor-agents">${Math.ceil(lang.earlyAgents || 0)}명→${Math.ceil(lang.stableAgents || 0)}명</div>
           <button class="btn-remove" data-code="${lang.code}">×</button>
         </div>
       `).join('');
@@ -595,10 +630,42 @@
       elements.languageList.querySelectorAll('.lang-input').forEach(input => {
         input.addEventListener('change', (e) => {
           const code = e.target.dataset.code;
-          const value = Math.max(0, Math.min(100, Number(e.target.value) || 0));
+          const newValue = Math.max(0, Math.min(100, Number(e.target.value) || 0));
           const lang = languages.find(l => l.code === code);
-          if (lang) {
-            lang.percentage = value;
+          
+          if (lang && languages.length > 1) {
+            const oldValue = lang.percentage;
+            const diff = newValue - oldValue;
+            
+            // 나머지 언어들의 현재 비중 합계
+            const othersTotal = languages.filter(l => l.code !== code).reduce((sum, l) => sum + l.percentage, 0);
+            
+            if (othersTotal > 0) {
+              // 나머지 언어들의 비중을 비례 배분으로 조정
+              languages.forEach(l => {
+                if (l.code !== code) {
+                  const ratio = l.percentage / othersTotal;
+                  l.percentage = Math.round((l.percentage - diff * ratio) * 10) / 10;
+                  // 음수 방지
+                  if (l.percentage < 0) l.percentage = 0;
+                }
+              });
+            }
+            
+            lang.percentage = newValue;
+            
+            // 합계 100% 보정
+            const total = languages.reduce((sum, l) => sum + l.percentage, 0);
+            if (total !== 100 && languages.length > 0) {
+              const firstOther = languages.find(l => l.code !== code);
+              if (firstOther) {
+                firstOther.percentage += Math.round((100 - total) * 10) / 10;
+              }
+            }
+            
+            calculate();
+          } else if (lang) {
+            lang.percentage = newValue;
             calculate();
           }
         });
@@ -608,6 +675,7 @@
         btn.addEventListener('click', (e) => {
           const code = e.target.dataset.code;
           languages = languages.filter(l => l.code !== code);
+          recalculatePercentages();
           calculate();
         });
       });
@@ -631,7 +699,8 @@
           const code = e.target.dataset.code;
           const preset = PRESET_LANGUAGES.find(p => p.code === code);
           if (preset) {
-            languages.push({ ...preset, percentage: 10 });
+            languages.push({ ...preset, percentage: 0 });
+            recalculatePercentages();
             calculate();
             renderPresetTags();
           }
@@ -747,6 +816,13 @@ ${langBreakdown}
       renderPresetTags();
     });
 
+    document.getElementById('suggestBtn').addEventListener('click', () => {
+      if (languages.length > 0) {
+        recalculatePercentages();
+        calculate();
+      }
+    });
+
     document.getElementById('closeModalBtn').addEventListener('click', () => {
       elements.langModal.classList.add('hidden');
     });
@@ -780,6 +856,21 @@ ${langBreakdown}
     elements.ticketRateStable.addEventListener('input', calculate);
     elements.ticketsPerDay.addEventListener('input', calculate);
     elements.workingDays.addEventListener('input', calculate);
+
+    // 기준 게임 선택 시 발생률 업데이트
+    elements.baseGame.addEventListener('change', (e) => {
+      const gameData = GAME_DATA[e.target.value];
+      if (gameData) {
+        config.ticketRateEarly = gameData.earlyRate;
+        config.ticketRateStable = gameData.stableRate;
+        
+        // 기준값 설정 필드도 업데이트
+        elements.ticketRateEarly.value = (gameData.earlyRate * 100).toFixed(2);
+        elements.ticketRateStable.value = (gameData.stableRate * 100).toFixed(2);
+        
+        calculate();
+      }
+    });
 
     elements.analyzeBtn.addEventListener('click', analyzeWithClaude);
 
