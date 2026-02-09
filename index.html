@@ -34,6 +34,17 @@
     .input-group input { width: 100%; padding: 12px 16px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: #fff; font-size: 15px; }
     .input-select { width: 100%; padding: 12px 16px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: #fff; font-size: 15px; cursor: pointer; }
     .input-select option { background: #1a2332; color: #fff; }
+    .lang-select-row { display: flex; align-items: center; gap: 12px; }
+    .btn-lang-select { padding: 12px 16px; background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 10px; color: #60a5fa; font-size: 14px; cursor: pointer; white-space: nowrap; }
+    .btn-lang-select:hover { background: rgba(59, 130, 246, 0.2); }
+    .lang-selected-preview { font-size: 13px; color: #9ca3af; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .btn-calculate { padding: 14px 48px; background: linear-gradient(135deg, #10b981, #34d399); border: none; border-radius: 12px; color: #fff; font-size: 16px; font-weight: 600; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; }
+    .btn-calculate:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(16, 185, 129, 0.3); }
+    .btn-small { padding: 6px 12px; font-size: 12px; }
+    .lang-select-tags { display: flex; flex-wrap: wrap; gap: 8px; }
+    .lang-select-tag { padding: 8px 14px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; color: #a1a1aa; font-size: 13px; cursor: pointer; transition: all 0.2s; }
+    .lang-select-tag:hover { background: rgba(59, 130, 246, 0.1); border-color: rgba(59, 130, 246, 0.3); }
+    .lang-select-tag.selected { background: rgba(34, 197, 94, 0.2); border-color: #22c55e; color: #4ade80; }
     .btn-row { display: flex; gap: 12px; margin-top: 20px; }
     .btn-secondary { padding: 8px 16px; background: transparent; border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; color: #a1a1aa; font-size: 13px; }
     .results-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
@@ -81,6 +92,7 @@
     .lang-progress { flex: 1; }
     .lang-input { width: 60px; padding: 6px 8px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; color: #fff; font-size: 13px; text-align: center; }
     .lang-percent { color: #9ca3af; width: 16px; }
+    .lang-percentage-text { width: 70px; font-size: 14px; font-weight: 500; color: #e0e8f0; text-align: center; }
     .lang-agents { width: 60px; text-align: center; }
     .lang-agents-value { font-size: 16px; font-weight: 600; }
     .lang-agents-value.green { color: #34d399; }
@@ -150,7 +162,7 @@
 
     <!-- Main Input Card -->
     <div class="card glow" style="padding: 24px; margin-bottom: 20px;">
-      <div class="input-grid" style="grid-template-columns: 1fr 1fr 1fr;">
+      <div class="input-grid" style="grid-template-columns: 1fr 1fr;">
         <div class="input-group">
           <label>게임명</label>
           <input type="text" id="gameName" value="팰월드 모바일">
@@ -159,6 +171,9 @@
           <label>예상 MAU</label>
           <input type="text" id="mau" value="1,000,000" inputmode="numeric">
         </div>
+      </div>
+      
+      <div class="input-grid" style="grid-template-columns: 1fr 1fr;">
         <div class="input-group">
           <label>기준 게임</label>
           <select id="baseGame" class="input-select">
@@ -167,11 +182,22 @@
             <option value="aod">AOD</option>
           </select>
         </div>
+        <div class="input-group">
+          <label>지원 언어</label>
+          <div class="lang-select-row">
+            <button class="btn btn-lang-select" id="openLangSelect">🌐 언어 선택</button>
+            <span class="lang-selected-preview" id="langPreview">선택된 언어 없음</span>
+          </div>
+        </div>
       </div>
 
-      <div class="btn-row">
-        <button class="btn btn-secondary" id="toggleSettings">⚙️ 기준값 설정 ▼</button>
-        <button class="btn btn-secondary" id="toggleReference">📊 참고 데이터 ▼</button>
+      <div class="btn-row" style="justify-content: center; margin-top: 24px;">
+        <button class="btn btn-calculate" id="calculateBtn">📊 계산하기</button>
+      </div>
+
+      <div class="btn-row" style="justify-content: center; margin-top: 12px;">
+        <button class="btn btn-secondary btn-small" id="toggleSettings">⚙️ 기준값 설정 ▼</button>
+        <button class="btn btn-secondary btn-small" id="toggleReference">📊 참고 데이터 ▼</button>
       </div>
 
       <!-- Reference Data -->
@@ -238,7 +264,8 @@
       </div>
     </div>
 
-    <!-- Results Summary -->
+    <!-- Results Section (숨김 상태로 시작) -->
+    <div id="resultsSection" class="hidden">
     <div class="results-grid">
       <!-- 런칭 초반 -->
       <div class="card result-card">
@@ -300,9 +327,7 @@
       <div class="lang-header">
         <h2>🌍 언어별 상담원 배분</h2>
         <div class="lang-header-right">
-          <span class="lang-total valid" id="langTotal">합계: 0%</span>
-          <button class="btn btn-suggest" id="suggestBtn">🔄 비중 제안</button>
-          <button class="btn btn-primary" id="addLangBtn">+ 언어 추가</button>
+          <span class="lang-total valid" id="langTotal">합계: 100%</span>
         </div>
       </div>
 
@@ -318,12 +343,11 @@
         <span style="width: 60px; text-align: center; color: #60a5fa;">안정기</span>
         <span style="width: 100px; text-align: center; color: #f59e0b;">외주사</span>
         <span style="width: 80px; text-align: center; color: #f59e0b;">외주사 인원</span>
-        <span style="width: 28px;"></span>
       </div>
 
       <div id="languageList"></div>
 
-      <div class="lang-empty hidden" id="langEmpty">출시 지역을 선택해주세요</div>
+      <div class="lang-empty" id="langEmpty">언어를 선택하고 계산하기 버튼을 눌러주세요</div>
     </div>
 
     <!-- AI Analysis Section -->
@@ -343,8 +367,32 @@
 
       <div class="ai-result hidden" id="aiResult"></div>
     </div>
+    </div><!-- resultsSection 끝 -->
 
-    <!-- Language Modal -->
+    <!-- Language Select Modal -->
+    <div class="modal-overlay hidden" id="langSelectModal">
+      <div class="card modal">
+        <h3>지원 언어 선택</h3>
+        <p style="color: #9ca3af; font-size: 13px; margin-bottom: 16px;">클릭하여 선택/해제</p>
+        
+        <div class="modal-section">
+          <div class="lang-select-tags" id="langSelectTags"></div>
+        </div>
+
+        <div class="modal-divider">
+          <div class="modal-section-title">직접 입력</div>
+          <div class="custom-input-row">
+            <input type="text" class="custom-flag-input" id="customFlagSelect" placeholder="🏳️" value="🏳️">
+            <input type="text" class="custom-name-input" id="customNameSelect" placeholder="언어명 (예: 폴란드어)">
+            <button class="btn btn-primary" id="addCustomSelectBtn">추가</button>
+          </div>
+        </div>
+
+        <button class="btn-close" id="closeLangSelectBtn">확인</button>
+      </div>
+    </div>
+
+    <!-- Language Modal (기존 - 비중 조정용) -->
     <div class="modal-overlay hidden" id="langModal">
       <div class="card modal">
         <h3>언어 추가</h3>
@@ -447,6 +495,9 @@
 
     // 현재 언어 목록
     let languages = [];
+    
+    // 선택된 언어 (계산 전 임시 저장)
+    let selectedLanguages = [];
 
     // DOM 요소
     const elements = {
@@ -478,6 +529,11 @@
       aiResult: document.getElementById('aiResult'),
       analyzeBtn: document.getElementById('analyzeBtn'),
       baseGame: document.getElementById('baseGame'),
+      resultsSection: document.getElementById('resultsSection'),
+      langSelectModal: document.getElementById('langSelectModal'),
+      langSelectTags: document.getElementById('langSelectTags'),
+      langPreview: document.getElementById('langPreview'),
+      calculateBtn: document.getElementById('calculateBtn'),
     };
 
     // 숫자 포맷팅 함수 (쉼표 추가)
@@ -546,30 +602,28 @@
       const earlyTickets = mau * config.ticketRateEarly;
       const stableTickets = mau * config.ticketRateStable;
 
-      const totalPercentage = languages.reduce((sum, l) => sum + l.percentage, 0);
-      
-      let totalEarlyAgents = 0;
-      let totalStableAgents = 0;
+      // 전체 필요 인원 (언어 상관없이)
+      const totalEarlyAgentsBase = Math.ceil(earlyTickets / ticketsPerMonth);
+      const totalStableAgentsBase = Math.ceil(stableTickets / ticketsPerMonth);
 
+      const totalPercentage = languages.reduce((sum, l) => sum + l.percentage, 0);
+
+      // 언어별 인원 계산 (전체 인원 기준으로 배분)
       languages.forEach(lang => {
-        const earlyAgents = (earlyTickets / ticketsPerMonth) * (lang.percentage / 100);
-        const stableAgents = (stableTickets / ticketsPerMonth) * (lang.percentage / 100);
-        lang.earlyAgents = earlyAgents;
-        lang.stableAgents = stableAgents;
-        totalEarlyAgents += Math.ceil(earlyAgents);
-        totalStableAgents += Math.ceil(stableAgents);
+        lang.earlyAgents = totalEarlyAgentsBase * (lang.percentage / 100);
+        lang.stableAgents = totalStableAgentsBase * (lang.percentage / 100);
       });
 
-      // UI 업데이트
+      // UI 업데이트 - 항상 전체 필요 인원 표시
       elements.earlyTickets.textContent = Math.round(earlyTickets).toLocaleString();
       elements.stableTickets.textContent = Math.round(stableTickets).toLocaleString();
-      elements.earlyAgents.textContent = totalEarlyAgents;
-      elements.stableAgents.textContent = totalStableAgents;
-      elements.summaryEarly.textContent = totalEarlyAgents + '명';
-      elements.summaryStable.textContent = totalStableAgents + '명';
+      elements.earlyAgents.textContent = totalEarlyAgentsBase;
+      elements.stableAgents.textContent = totalStableAgentsBase;
+      elements.summaryEarly.textContent = totalEarlyAgentsBase + '명';
+      elements.summaryStable.textContent = totalStableAgentsBase + '명';
 
       // 변화 뱃지
-      const diff = totalEarlyAgents - totalStableAgents;
+      const diff = totalEarlyAgentsBase - totalStableAgentsBase;
       if (diff > 0) {
         elements.changeBadge.textContent = `${diff}명 축소 가능`;
         elements.changeBadge.className = 'change-badge positive';
@@ -609,76 +663,20 @@
               <div class="progress-fill" style="width: ${lang.percentage}%;"></div>
             </div>
           </div>
-          <input type="number" class="lang-input" value="${lang.percentage}" data-code="${lang.code}">
-          <span class="lang-percent">%</span>
+          <span class="lang-percentage-text">${lang.percentage.toFixed(1)}%</span>
           <div class="lang-agents">
-            <span class="lang-agents-value green">${Math.ceil(lang.earlyAgents || 0)}</span>
+            <span class="lang-agents-value green">${(lang.earlyAgents || 0).toFixed(1)}</span>
             <span class="lang-agents-unit">명</span>
           </div>
           <span class="lang-arrow">→</span>
           <div class="lang-agents">
-            <span class="lang-agents-value blue">${Math.ceil(lang.stableAgents || 0)}</span>
+            <span class="lang-agents-value blue">${(lang.stableAgents || 0).toFixed(1)}</span>
             <span class="lang-agents-unit">명</span>
           </div>
           <div class="lang-vendor">${getVendors(lang.code)}</div>
-          <div class="lang-vendor-agents">${Math.ceil(lang.earlyAgents || 0)}명→${Math.ceil(lang.stableAgents || 0)}명</div>
-          <button class="btn-remove" data-code="${lang.code}">×</button>
+          <div class="lang-vendor-agents">${(lang.earlyAgents || 0).toFixed(1)}명→${(lang.stableAgents || 0).toFixed(1)}명</div>
         </div>
       `).join('');
-
-      // 이벤트 바인딩
-      elements.languageList.querySelectorAll('.lang-input').forEach(input => {
-        input.addEventListener('change', (e) => {
-          const code = e.target.dataset.code;
-          const newValue = Math.max(0, Math.min(100, Number(e.target.value) || 0));
-          const lang = languages.find(l => l.code === code);
-          
-          if (lang && languages.length > 1) {
-            const oldValue = lang.percentage;
-            const diff = newValue - oldValue;
-            
-            // 나머지 언어들의 현재 비중 합계
-            const othersTotal = languages.filter(l => l.code !== code).reduce((sum, l) => sum + l.percentage, 0);
-            
-            if (othersTotal > 0) {
-              // 나머지 언어들의 비중을 비례 배분으로 조정
-              languages.forEach(l => {
-                if (l.code !== code) {
-                  const ratio = l.percentage / othersTotal;
-                  l.percentage = Math.round((l.percentage - diff * ratio) * 10) / 10;
-                  // 음수 방지
-                  if (l.percentage < 0) l.percentage = 0;
-                }
-              });
-            }
-            
-            lang.percentage = newValue;
-            
-            // 합계 100% 보정
-            const total = languages.reduce((sum, l) => sum + l.percentage, 0);
-            if (total !== 100 && languages.length > 0) {
-              const firstOther = languages.find(l => l.code !== code);
-              if (firstOther) {
-                firstOther.percentage += Math.round((100 - total) * 10) / 10;
-              }
-            }
-            
-            calculate();
-          } else if (lang) {
-            lang.percentage = newValue;
-            calculate();
-          }
-        });
-      });
-
-      elements.languageList.querySelectorAll('.btn-remove').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-          const code = e.target.dataset.code;
-          languages = languages.filter(l => l.code !== code);
-          recalculatePercentages();
-          calculate();
-        });
-      });
     }
 
     // 프리셋 태그 렌더링
@@ -811,51 +809,7 @@ ${langBreakdown}
       btn.textContent = elements.referenceSection.classList.contains('show') ? '📊 참고 데이터 ▲' : '📊 참고 데이터 ▼';
     });
 
-    document.getElementById('addLangBtn').addEventListener('click', () => {
-      elements.langModal.classList.remove('hidden');
-      renderPresetTags();
-    });
-
-    document.getElementById('suggestBtn').addEventListener('click', () => {
-      if (languages.length > 0) {
-        recalculatePercentages();
-        calculate();
-      }
-    });
-
-    document.getElementById('closeModalBtn').addEventListener('click', () => {
-      elements.langModal.classList.add('hidden');
-    });
-
-    elements.langModal.addEventListener('click', (e) => {
-      if (e.target === elements.langModal) {
-        elements.langModal.classList.add('hidden');
-      }
-    });
-
-    document.getElementById('addCustomBtn').addEventListener('click', () => {
-      const name = elements.customName.value.trim();
-      const flag = elements.customFlag.value.trim() || '🏳️';
-      if (name) {
-        languages.push({
-          code: `custom-${Date.now()}`,
-          name,
-          flag,
-          percentage: 10
-        });
-        elements.customName.value = '';
-        elements.customFlag.value = '🏳️';
-        calculate();
-        elements.langModal.classList.add('hidden');
-      }
-    });
-
     elements.mau.addEventListener('input', handleMauInput);
-    elements.gameName.addEventListener('input', calculate);
-    elements.ticketRateEarly.addEventListener('input', calculate);
-    elements.ticketRateStable.addEventListener('input', calculate);
-    elements.ticketsPerDay.addEventListener('input', calculate);
-    elements.workingDays.addEventListener('input', calculate);
 
     // 기준 게임 선택 시 발생률 업데이트
     elements.baseGame.addEventListener('change', (e) => {
@@ -867,15 +821,119 @@ ${langBreakdown}
         // 기준값 설정 필드도 업데이트
         elements.ticketRateEarly.value = (gameData.earlyRate * 100).toFixed(2);
         elements.ticketRateStable.value = (gameData.stableRate * 100).toFixed(2);
-        
-        calculate();
       }
     });
 
     elements.analyzeBtn.addEventListener('click', analyzeWithClaude);
 
-    // 초기화
-    calculate();
+    // 언어 선택 모달 열기
+    document.getElementById('openLangSelect').addEventListener('click', () => {
+      elements.langSelectModal.classList.remove('hidden');
+      renderLangSelectTags();
+    });
+
+    // 언어 선택 모달 닫기
+    document.getElementById('closeLangSelectBtn').addEventListener('click', () => {
+      elements.langSelectModal.classList.add('hidden');
+      updateLangPreview();
+    });
+
+    elements.langSelectModal.addEventListener('click', (e) => {
+      if (e.target === elements.langSelectModal) {
+        elements.langSelectModal.classList.add('hidden');
+        updateLangPreview();
+      }
+    });
+
+    // 언어 선택 모달에서 직접 입력
+    document.getElementById('addCustomSelectBtn').addEventListener('click', () => {
+      const name = document.getElementById('customNameSelect').value.trim();
+      const flag = document.getElementById('customFlagSelect').value.trim() || '🏳️';
+      if (name) {
+        const customLang = {
+          code: `custom-${Date.now()}`,
+          name,
+          flag,
+          baseRatio: 10
+        };
+        selectedLanguages.push(customLang);
+        document.getElementById('customNameSelect').value = '';
+        document.getElementById('customFlagSelect').value = '🏳️';
+        renderLangSelectTags();
+        updateLangPreview();
+      }
+    });
+
+    // 계산하기 버튼
+    elements.calculateBtn.addEventListener('click', () => {
+      // 선택된 언어를 languages에 복사하고 비중 계산
+      languages = selectedLanguages.map(lang => ({
+        code: lang.code,
+        name: lang.name,
+        flag: lang.flag,
+        percentage: 0
+      }));
+      
+      if (languages.length > 0) {
+        recalculatePercentages();
+      }
+      
+      // 결과 섹션 표시
+      elements.resultsSection.classList.remove('hidden');
+      
+      // 계산 실행
+      calculate();
+      
+      // 결과 섹션으로 스크롤
+      elements.resultsSection.scrollIntoView({ behavior: 'smooth' });
+    });
+
+    // 언어 선택 태그 렌더링
+    function renderLangSelectTags() {
+      elements.langSelectTags.innerHTML = PRESET_LANGUAGES.map(lang => {
+        const isSelected = selectedLanguages.some(l => l.code === lang.code);
+        return `<button class="lang-select-tag ${isSelected ? 'selected' : ''}" data-code="${lang.code}">${lang.flag} ${lang.name}</button>`;
+      }).join('');
+
+      // 커스텀 언어도 표시
+      selectedLanguages.filter(l => l.code.startsWith('custom-')).forEach(lang => {
+        elements.langSelectTags.innerHTML += `<button class="lang-select-tag selected" data-code="${lang.code}">${lang.flag} ${lang.name}</button>`;
+      });
+
+      // 클릭 이벤트
+      elements.langSelectTags.querySelectorAll('.lang-select-tag').forEach(tag => {
+        tag.addEventListener('click', (e) => {
+          const code = e.target.dataset.code;
+          const isSelected = selectedLanguages.some(l => l.code === code);
+          
+          if (isSelected) {
+            selectedLanguages = selectedLanguages.filter(l => l.code !== code);
+          } else {
+            const preset = PRESET_LANGUAGES.find(p => p.code === code);
+            if (preset) {
+              selectedLanguages.push({ ...preset });
+            }
+          }
+          
+          renderLangSelectTags();
+          updateLangPreview();
+        });
+      });
+    }
+
+    // 선택된 언어 미리보기 업데이트
+    function updateLangPreview() {
+      if (selectedLanguages.length === 0) {
+        elements.langPreview.textContent = '선택된 언어 없음';
+      } else {
+        const names = selectedLanguages.map(l => l.name).join(', ');
+        elements.langPreview.textContent = `${names} (${selectedLanguages.length}개)`;
+      }
+    }
+
+    // 초기화 - 결과 섹션 숨김
+    elements.resultsSection.classList.add('hidden');
+    updateLangPreview();
   </script>
 </body>
 </html>
