@@ -714,13 +714,13 @@
       elements.aiLoading.classList.remove('hidden');
       elements.aiResult.classList.add('hidden');
 
-      const mau = Number(elements.mau.value) || 0;
+      const mau = parseNumber(elements.mau.value);
       const gameName = elements.gameName.value;
       const ticketsPerMonth = config.ticketsPerAgentPerDay * config.workingDaysPerMonth;
       const earlyTickets = mau * config.ticketRateEarly;
       const stableTickets = mau * config.ticketRateStable;
-      const totalEarlyAgents = languages.reduce((sum, l) => sum + Math.ceil((earlyTickets / ticketsPerMonth) * (l.percentage / 100)), 0);
-      const totalStableAgents = languages.reduce((sum, l) => sum + Math.ceil((stableTickets / ticketsPerMonth) * (l.percentage / 100)), 0);
+      const totalEarlyAgents = Math.ceil(earlyTickets / ticketsPerMonth);
+      const totalStableAgents = Math.ceil(stableTickets / ticketsPerMonth);
 
       const langBreakdown = languages.map(lang => {
         const earlyAgents = (earlyTickets / ticketsPerMonth) * (lang.percentage / 100);
