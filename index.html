@@ -202,42 +202,43 @@
 
       <!-- Reference Data -->
       <div class="reference-section" id="referenceSection">
-        <div class="reference-title">📊 계산 기준 참고 데이터</div>
+        <div class="reference-title">📊 계산 기준 참고 데이터 (실제 운영 데이터 분석 결과)</div>
         <table class="reference-table">
           <thead>
             <tr>
               <th>게임</th>
-              <th class="right">MAU</th>
-              <th class="right green">초반 티켓</th>
-              <th class="right blue">안정기 티켓</th>
-              <th class="right">상담원</th>
+              <th class="right">분석 기간</th>
               <th class="right green">초반 발생률</th>
               <th class="right blue">안정기 발생률</th>
+              <th class="right">데이터 출처</th>
             </tr>
           </thead>
           <tbody>
             <tr>
+              <td>NEW STATE</td>
+              <td class="right">14개월 (417일)</td>
+              <td class="right green">1.17%</td>
+              <td class="right light-blue">0.43%</td>
+              <td class="right">일별 티켓 데이터</td>
+            </tr>
+            <tr>
               <td>Defense Derby</td>
-              <td class="right blue">682,384</td>
-              <td class="right">465</td>
-              <td class="right">653</td>
-              <td class="right">6명</td>
-              <td class="right green">0.068%</td>
-              <td class="right light-blue">0.096%</td>
+              <td class="right">78주</td>
+              <td class="right green">0.19%</td>
+              <td class="right light-blue">0.09%</td>
+              <td class="right">주별 티켓 데이터</td>
             </tr>
             <tr>
               <td>Abyss of Dungeons</td>
-              <td class="right blue">634,988</td>
-              <td class="right">1,330</td>
-              <td class="right">295</td>
-              <td class="right">8명</td>
-              <td class="right green">0.210%</td>
-              <td class="right light-blue">0.046%</td>
+              <td class="right">48주</td>
+              <td class="right green">0.25%</td>
+              <td class="right light-blue">0.20%</td>
+              <td class="right">주별 티켓 데이터</td>
             </tr>
           </tbody>
         </table>
         <div class="reference-note" id="referenceNote">
-          * 현재 계산 기준: 런칭 초반 0.14%, 안정기 0.07%, 상담원 1인 일 100건 처리 (월 22일 근무)
+          * 현재 계산 기준: 런칭 초반 1.17%, 안정기 0.43%, 상담원 1인 일 100건 처리 (월 22일 근무)
         </div>
       </div>
 
@@ -691,8 +692,9 @@
       }
 
       // 합계
-      elements.langTotal.textContent = `합계: ${totalPercentage}%`;
-      elements.langTotal.className = totalPercentage === 100 ? 'lang-total valid' : 'lang-total invalid';
+      const totalRounded = Math.round(totalPercentage * 100) / 100;
+      elements.langTotal.textContent = `합계: ${totalRounded}%`;
+      elements.langTotal.className = Math.abs(totalPercentage - 100) < 0.01 ? 'lang-total valid' : 'lang-total invalid';
 
       // 참고 노트
       elements.referenceNote.textContent = `* 현재 계산 기준: 런칭 초반 ${(config.ticketRateEarly * 100).toFixed(2)}%, 안정기 ${(config.ticketRateStable * 100).toFixed(2)}%, 상담원 1인 일 ${config.ticketsPerAgentPerDay}건 처리 (월 ${config.workingDaysPerMonth}일 근무)`;
