@@ -34,10 +34,10 @@
     .input-group input { width: 100%; padding: 12px 16px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: #fff; font-size: 15px; }
     .input-select { width: 100%; padding: 12px 16px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: #fff; font-size: 15px; cursor: pointer; }
     .input-select option { background: #1a2332; color: #fff; }
-    .lang-select-row { display: flex; align-items: center; gap: 12px; }
-    .btn-lang-select { padding: 12px 16px; background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 10px; color: #60a5fa; font-size: 14px; cursor: pointer; white-space: nowrap; }
+    .lang-select-row { display: flex; align-items: flex-start; gap: 12px; }
+    .btn-lang-select { padding: 12px 16px; background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 10px; color: #60a5fa; font-size: 14px; cursor: pointer; white-space: nowrap; flex-shrink: 0; }
     .btn-lang-select:hover { background: rgba(59, 130, 246, 0.2); }
-    .lang-selected-preview { font-size: 13px; color: #9ca3af; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .lang-selected-preview { font-size: 13px; color: #9ca3af; flex: 1; line-height: 1.6; }
     .btn-calculate { padding: 14px 48px; background: linear-gradient(135deg, #10b981, #34d399); border: none; border-radius: 12px; color: #fff; font-size: 16px; font-weight: 600; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; }
     .btn-calculate:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(16, 185, 129, 0.3); }
     .btn-small { padding: 6px 12px; font-size: 12px; }
@@ -179,7 +179,7 @@
           <select id="baseGame" class="input-select">
             <option value="newstate">NEW STATE</option>
             <option value="defensederby">Defense Derby</option>
-            <option value="aod">AOD</option>
+            <option value="aod">Abyss of Dungeons</option>
           </select>
         </div>
         <div class="input-group">
@@ -423,11 +423,59 @@
   </div>
 
   <script>
-    // 게임별 티켓 발생률 데이터
+    // 게임별 티켓 발생률 + 언어 비율 데이터 (실제 운영 데이터 기반)
     const GAME_DATA = {
-      newstate: { name: 'NEW STATE', earlyRate: 0.0117, stableRate: 0.0043 },
-      defensederby: { name: 'Defense Derby', earlyRate: 0.0014, stableRate: 0.0007 },
-      aod: { name: 'AOD', earlyRate: 0.0018, stableRate: 0.0018 },
+      newstate: { 
+        name: 'NEW STATE', 
+        earlyRate: 0.0117, 
+        stableRate: 0.0043,
+        // 14개월 일별 데이터 분석 결과 (2021.11 ~ 2023.01)
+        languages: [
+          { code: 'en', name: '영어', flag: '🇺🇸', baseRatio: 34.4 },
+          { code: 'zh-CN', name: '중국어 간체', flag: '🇨🇳', baseRatio: 26.2 },
+          { code: 'ar', name: '아랍어', flag: '🇸🇦', baseRatio: 9.0 },
+          { code: 'ru', name: '러시아어', flag: '🇷🇺', baseRatio: 8.9 },
+          { code: 'tr', name: '튀르키예어', flag: '🇹🇷', baseRatio: 6.0 },
+          { code: 'es', name: '스페인어', flag: '🇪🇸', baseRatio: 3.7 },
+          { code: 'id', name: '인도네시아어', flag: '🇮🇩', baseRatio: 2.7 },
+          { code: 'ko', name: '한국어', flag: '🇰🇷', baseRatio: 1.8 },
+          { code: 'zh-TW', name: '중국어 번체', flag: '🇹🇼', baseRatio: 1.7 },
+          { code: 'pt-BR', name: '포르투갈어 (브라질)', flag: '🇧🇷', baseRatio: 1.6 },
+          { code: 'ja', name: '일본어', flag: '🇯🇵', baseRatio: 1.5 },
+          { code: 'th', name: '태국어', flag: '🇹🇭', baseRatio: 0.9 },
+          { code: 'fr', name: '프랑스어', flag: '🇫🇷', baseRatio: 0.8 },
+          { code: 'de', name: '독일어', flag: '🇩🇪', baseRatio: 0.7 },
+          { code: 'ms', name: '말레이시아어', flag: '🇲🇾', baseRatio: 0.2 },
+        ]
+      },
+      defensederby: { 
+        name: 'Defense Derby', 
+        earlyRate: 0.0019, 
+        stableRate: 0.0009,
+        // 78주 데이터 분석 결과 (2024.07 ~ 2025.12)
+        languages: [
+          { code: 'ko', name: '한국어', flag: '🇰🇷', baseRatio: 35.0 },
+          { code: 'en', name: '영어', flag: '🇺🇸', baseRatio: 30.0 },
+          { code: 'zh-TW', name: '중국어 번체', flag: '🇹🇼', baseRatio: 10.0 },
+          { code: 'hi', name: '힌디어', flag: '🇮🇳', baseRatio: 10.0 },
+          { code: 'ja', name: '일본어', flag: '🇯🇵', baseRatio: 5.0 },
+          { code: 'th', name: '태국어', flag: '🇹🇭', baseRatio: 5.0 },
+          { code: 'id', name: '인도네시아어', flag: '🇮🇩', baseRatio: 5.0 },
+        ]
+      },
+      aod: { 
+        name: 'Abyss of Dungeons', 
+        earlyRate: 0.0025, 
+        stableRate: 0.0020,
+        // 48주 데이터 분석 결과 (2025.02 ~ 2025.12)
+        languages: [
+          { code: 'en', name: '영어', flag: '🇺🇸', baseRatio: 50.0 },
+          { code: 'id', name: '인도네시아어', flag: '🇮🇩', baseRatio: 15.0 },
+          { code: 'th', name: '태국어', flag: '🇹🇭', baseRatio: 12.0 },
+          { code: 'pt-BR', name: '포르투갈어 (브라질)', flag: '🇧🇷', baseRatio: 12.0 },
+          { code: 'es-MX', name: '스페인어 (멕시코)', flag: '🇲🇽', baseRatio: 11.0 },
+        ]
+      },
     };
 
     // 설정
@@ -438,17 +486,24 @@
       workingDaysPerMonth: 22
     };
 
-    // 프리셋 언어 (NEW STATE + Defense Derby + AOD 평균 비중, 2개 이상 게임 데이터 있는 언어만)
+    // 기본 프리셋 언어 (기준 게임 미선택시 또는 커스텀용)
     const PRESET_LANGUAGES = [
-      { code: 'en', name: '영어', flag: '🇺🇸', baseRatio: 24.3 },
-      { code: 'hi', name: '힌디어', flag: '🇮🇳', baseRatio: 23.0 },
-      { code: 'id', name: '인도네시아어', flag: '🇮🇩', baseRatio: 13.0 },
-      { code: 'ko', name: '한국어', flag: '🇰🇷', baseRatio: 12.6 },
-      { code: 'pt-BR', name: '포르투갈어 (브라질)', flag: '🇧🇷', baseRatio: 12.6 },
-      { code: 'zh-TW', name: '중국어 번체', flag: '🇹🇼', baseRatio: 5.3 },
-      { code: 'th', name: '태국어', flag: '🇹🇭', baseRatio: 4.2 },
-      { code: 'ja', name: '일본어', flag: '🇯🇵', baseRatio: 3.1 },
-      { code: 'es-MX', name: '스페인어 (남미)', flag: '🇲🇽', baseRatio: 2.8 },
+      { code: 'en', name: '영어', flag: '🇺🇸', baseRatio: 34.4 },
+      { code: 'ko', name: '한국어', flag: '🇰🇷', baseRatio: 12.0 },
+      { code: 'ja', name: '일본어', flag: '🇯🇵', baseRatio: 5.0 },
+      { code: 'zh-CN', name: '중국어 간체', flag: '🇨🇳', baseRatio: 10.0 },
+      { code: 'zh-TW', name: '중국어 번체', flag: '🇹🇼', baseRatio: 5.0 },
+      { code: 'th', name: '태국어', flag: '🇹🇭', baseRatio: 5.0 },
+      { code: 'id', name: '인도네시아어', flag: '🇮🇩', baseRatio: 5.0 },
+      { code: 'pt-BR', name: '포르투갈어 (브라질)', flag: '🇧🇷', baseRatio: 5.0 },
+      { code: 'es-MX', name: '스페인어 (멕시코)', flag: '🇲🇽', baseRatio: 5.0 },
+      { code: 'ar', name: '아랍어', flag: '🇸🇦', baseRatio: 5.0 },
+      { code: 'ru', name: '러시아어', flag: '🇷🇺', baseRatio: 5.0 },
+      { code: 'hi', name: '힌디어', flag: '🇮🇳', baseRatio: 5.0 },
+      { code: 'tr', name: '튀르키예어', flag: '🇹🇷', baseRatio: 5.0 },
+      { code: 'fr', name: '프랑스어', flag: '🇫🇷', baseRatio: 2.0 },
+      { code: 'de', name: '독일어', flag: '🇩🇪', baseRatio: 2.0 },
+      { code: 'ms', name: '말레이시아어', flag: '🇲🇾', baseRatio: 2.0 },
     ];
 
     // 외주사별 담당 언어
@@ -821,6 +876,10 @@ ${langBreakdown}
         // 기준값 설정 필드도 업데이트
         elements.ticketRateEarly.value = (gameData.earlyRate * 100).toFixed(2);
         elements.ticketRateStable.value = (gameData.stableRate * 100).toFixed(2);
+        
+        // 선택된 언어 초기화 (빈 상태로)
+        selectedLanguages = [];
+        updateLangPreview();
       }
     });
 
@@ -890,6 +949,7 @@ ${langBreakdown}
 
     // 언어 선택 태그 렌더링
     function renderLangSelectTags() {
+      // 항상 통일된 언어 목록 사용
       elements.langSelectTags.innerHTML = PRESET_LANGUAGES.map(lang => {
         const isSelected = selectedLanguages.some(l => l.code === lang.code);
         return `<button class="lang-select-tag ${isSelected ? 'selected' : ''}" data-code="${lang.code}">${lang.flag} ${lang.name}</button>`;
@@ -903,7 +963,7 @@ ${langBreakdown}
       // 클릭 이벤트
       elements.langSelectTags.querySelectorAll('.lang-select-tag').forEach(tag => {
         tag.addEventListener('click', (e) => {
-          const code = e.target.dataset.code;
+          const code = e.target.closest('.lang-select-tag').dataset.code;
           const isSelected = selectedLanguages.some(l => l.code === code);
           
           if (isSelected) {
