@@ -178,6 +178,7 @@
           <label>기준 게임</label>
           <select id="baseGame" class="input-select">
             <option value="newstate">NEW STATE</option>
+            <option value="inzoi">inZOI</option>
             <option value="defensederby">Defense Derby</option>
             <option value="aod">Abyss of Dungeons</option>
           </select>
@@ -220,6 +221,13 @@
               <td class="right green">1.17%</td>
               <td class="right light-blue">0.43%</td>
               <td class="right">일별 티켓 데이터</td>
+            </tr>
+            <tr>
+              <td>inZOI</td>
+              <td class="right">41주</td>
+              <td class="right green">0.22%</td>
+              <td class="right light-blue">0.14%</td>
+              <td class="right">주별 WAU/티켓 데이터</td>
             </tr>
             <tr>
               <td>Defense Derby</td>
@@ -449,6 +457,27 @@
           { code: 'ms', name: '말레이시아어', flag: '🇲🇾', baseRatio: 0.2 },
         ]
       },
+      inzoi: { 
+        name: 'inZOI', 
+        earlyRate: 0.0022,  // EA/메이저 패치 기간 WAU 기반 실측값
+        stableRate: 0.0014, // 안정기 WAU 기반 실측값
+        // 41주 데이터 분석 결과 (2025.03 ~ 2026.01)
+        languages: [
+          { code: 'en', name: '영어', flag: '🇺🇸', baseRatio: 60.8 },
+          { code: 'ko', name: '한국어', flag: '🇰🇷', baseRatio: 8.5 },
+          { code: 'ru', name: '러시아어', flag: '🇷🇺', baseRatio: 7.2 },
+          { code: 'de', name: '독일어', flag: '🇩🇪', baseRatio: 4.6 },
+          { code: 'zh-CN', name: '중국어 간체', flag: '🇨🇳', baseRatio: 4.0 },
+          { code: 'fr', name: '프랑스어', flag: '🇫🇷', baseRatio: 3.7 },
+          { code: 'es', name: '스페인어', flag: '🇪🇸', baseRatio: 2.9 },
+          { code: 'pt-BR', name: '포르투갈어 (브라질)', flag: '🇧🇷', baseRatio: 2.0 },
+          { code: 'zh-TW', name: '중국어 번체', flag: '🇹🇼', baseRatio: 1.9 },
+          { code: 'pl', name: '폴란드어', flag: '🇵🇱', baseRatio: 1.7 },
+          { code: 'ja', name: '일본어', flag: '🇯🇵', baseRatio: 1.1 },
+          { code: 'it', name: '이탈리아어', flag: '🇮🇹', baseRatio: 1.1 },
+          { code: 'pt', name: '포르투갈어', flag: '🇵🇹', baseRatio: 0.3 },
+        ]
+      },
       defensederby: { 
         name: 'Defense Derby', 
         earlyRate: 0.0019, 
@@ -497,13 +526,16 @@
       { code: 'th', name: '태국어', flag: '🇹🇭', baseRatio: 5.0 },
       { code: 'id', name: '인도네시아어', flag: '🇮🇩', baseRatio: 5.0 },
       { code: 'pt-BR', name: '포르투갈어 (브라질)', flag: '🇧🇷', baseRatio: 5.0 },
-      { code: 'es-MX', name: '스페인어 (멕시코)', flag: '🇲🇽', baseRatio: 5.0 },
+      { code: 'pt', name: '포르투갈어', flag: '🇵🇹', baseRatio: 2.0 },
+      { code: 'es', name: '스페인어', flag: '🇪🇸', baseRatio: 5.0 },
       { code: 'ar', name: '아랍어', flag: '🇸🇦', baseRatio: 5.0 },
       { code: 'ru', name: '러시아어', flag: '🇷🇺', baseRatio: 5.0 },
       { code: 'hi', name: '힌디어', flag: '🇮🇳', baseRatio: 5.0 },
       { code: 'tr', name: '튀르키예어', flag: '🇹🇷', baseRatio: 5.0 },
       { code: 'fr', name: '프랑스어', flag: '🇫🇷', baseRatio: 2.0 },
       { code: 'de', name: '독일어', flag: '🇩🇪', baseRatio: 2.0 },
+      { code: 'pl', name: '폴란드어', flag: '🇵🇱', baseRatio: 2.0 },
+      { code: 'it', name: '이탈리아어', flag: '🇮🇹', baseRatio: 2.0 },
       { code: 'ms', name: '말레이시아어', flag: '🇲🇾', baseRatio: 2.0 },
     ];
 
